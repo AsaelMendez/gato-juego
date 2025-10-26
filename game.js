@@ -8,13 +8,11 @@ const gameOverScreen = document.getElementById('gameOver');
 const restartButton = document.getElementById('restartButton');
 const finalScore = document.getElementById('finalScore');
 
-// ***** CAMBIO AQUÍ: Array de Imágenes del Gato *****
-// Asegúrate de que estos archivos existan en una carpeta 'img/'
 const catImages = [
     'img/splash_1.png', // Nivel 0 (0-99 puntos)
     'img/splash_2.png', // Nivel 1 (100-199 puntos)
-    'imgsplash_3.png', // Nivel 2 (200-299 puntos)
-    'img/plash_4.png', // Nivel 3 (300-399 puntos)
+    'img/splash_3.png', // Nivel 2 (200-299 puntos)
+    'img/splash_4.png', // Nivel 3 (300-399 puntos)
     'img/splash_5.png', // Nivel 4 (400-499 puntos)
     'img/splash_6.png', // Nivel 5 (500-599 puntos)
     'img/splash_7.png', // Nivel 6 (600-699 puntos)
@@ -43,11 +41,9 @@ function startGame() {
     gameRunning = true;
     scoreDisplay.textContent = 'Puntuación: 0';
     
-    // Resetear a la imagen base (splash_1.png)
     player.src = catImages[0]; 
     playerWidth = player.offsetWidth; 
     
-    // Posicionar al jugador en el centro
     gameAreaRect = gameArea.getBoundingClientRect();
     let playerX = (gameAreaRect.width / 2) - (playerWidth / 2);
     player.style.left = playerX + 'px';
@@ -70,11 +66,9 @@ function gameLoop() {
 
         if (checkCollision(player, item)) {
             if (item.classList.contains('good')) {
-                // 1 punto por pescado
                 updateScore(1); 
                 item.remove();
             } else {
-                // Tocar algo malo termina el juego
                 endGame();
             }
         }
@@ -88,7 +82,6 @@ function createItem() {
     const itemElement = document.createElement('div');
     itemElement.classList.add('item');
 
-    // 70% de probabilidad de pescado
     if (Math.random() < 0.7) {
         itemElement.textContent = items.good;
         itemElement.classList.add('good');
@@ -97,7 +90,6 @@ function createItem() {
         itemElement.classList.add('bad');
     }
 
-    // Posición horizontal aleatoria
     let randomX = Math.floor(Math.random() * (gameAreaRect.width - 40));
     itemElement.style.left = randomX + 'px';
     itemElement.style.top = '-50px';
@@ -105,28 +97,16 @@ function createItem() {
     gameArea.appendChild(itemElement);
 }
 
-/** * Actualiza la puntuación y cambia la imagen del gato.
- */
 function updateScore(points) {
     score += points;
     scoreDisplay.textContent = `Puntuación: ${score}`;
 
-    // Lógica para Cambiar imagen (Engordar)
-    
-    // 1. Calcular el "nivel" del gato (0 para 0-99, 1 para 100-199, etc.)
-    // Math.floor(99 / 100) = 0  -> catImages[0] -> splash_1.png
-    // Math.floor(100 / 100) = 1 -> catImages[1] -> splash_2.png
-    // ...
-    // Math.floor(900 / 100) = 9 -> catImages[9] -> splash_10.png
     let catLevel = Math.floor(score / 100);
     
-    // 2. Limitar el nivel al máximo de imágenes que tenemos (índice 9)
     if (catLevel >= catImages.length) {
         catLevel = catImages.length - 1; 
     }
 
-    // 3. Cambiar la imagen del gato si es diferente a la actual
-    // (Esto evita recargar la imagen en cada frame)
     if (player.src.endsWith(catImages[catLevel]) === false) {
         player.src = catImages[catLevel];
         playerWidth = player.offsetWidth; 
@@ -135,18 +115,15 @@ function updateScore(points) {
 
 function endGame() {
     gameRunning = false;
-    clearInterval(itemInterval); // Detener creación de items
-    clearInterval(gameLoopInterval); // Detener bucle de juego
+    clearInterval(itemInterval); 
+    clearInterval(gameLoopInterval); 
     
-    // Mostrar pantalla de Game Over
     finalScore.textContent = score;
     gameOverScreen.style.display = 'flex';
     
-    // Limpiar items restantes
     document.querySelectorAll('.item').forEach(item => item.remove());
 }
 
-/** Revisa la colisión entre dos elementos */
 function checkCollision(el1, el2) {
     const rect1 = el1.getBoundingClientRect();
     const rect2 = el2.getBoundingClientRect();
@@ -158,14 +135,27 @@ function checkCollision(el1, el2) {
     );
 }
 
-/** Mueve al jugador con el ratón */
+// ***** CAMBIO 1: La función movePlayer ahora detecta TOUCH y MOUSE *****
 function movePlayer(event) {
     if (!gameRunning) return;
+
+    // ¡IMPORTANTE! Evita que la página haga scroll en el móvil
+    event.preventDefault();
+
+    let clientX;
     
-    // Centramos el gato en el cursor
-    let newX = event.clientX - gameAreaRect.left - (playerWidth / 2);
+    // Comprobar si es un evento touch (móvil) o mouse (PC)
+    if (event.touches) {
+        // Es touch: usar las coordenadas del primer dedo
+        clientX = event.touches[0].clientX;
+    } else {
+        // Es mouse: usar las coordenadas del ratón
+        clientX = event.clientX;
+    }
     
-    // Limitar el movimiento a los bordes del área de juego
+    // El resto de la lógica es la misma
+    let newX = clientX - gameAreaRect.left - (playerWidth / 2);
+    
     if (newX < 0) newX = 0;
     if (newX > gameAreaRect.width - playerWidth) {
         newX = gameAreaRect.width - playerWidth;
@@ -177,7 +167,16 @@ function movePlayer(event) {
 // --- 4. Event Listeners (Poner todo en marcha) ---
 startButton.addEventListener('click', startGame);
 restartButton.addEventListener('click', startGame);
+
+// ***** CAMBIO 2: Añadimos un listener para 'touchmove' *****
+
+// Escuchar tanto el ratón...
 gameArea.addEventListener('mousemove', movePlayer);
+
+// ...COMO el movimiento táctil del dedo
+// Añadimos { passive: false } para permitir que event.preventDefault() funcione
+gameArea.addEventListener('touchmove', movePlayer, { passive: false });
+
 
 // Actualizar el tamaño del área de juego si la ventana cambia
 window.addEventListener('resize', () => {
