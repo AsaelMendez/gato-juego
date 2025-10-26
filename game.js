@@ -126,7 +126,11 @@ function endGame() {
 
 function checkCollision(el1, el2) {
     const rect1 = el1.getBoundingClientRect();
-    const rect2 = elR.getBoundingClientRect();
+    
+    // ***** ¡AQUÍ ESTABA EL ERROR! *****
+    // Decía "elR" en lugar de "el2"
+    const rect2 = el2.getBoundingClientRect(); 
+    
     return !(
         rect1.top > rect2.bottom ||
         rect1.right < rect2.left ||
@@ -166,8 +170,6 @@ function movePlayer(event) {
 // --- 4. Event Listeners (Poner todo en marcha) ---
 startButton.addEventListener('click', startGame);
 restartButton.addEventListener('click', startGame);
-
-// ***** CAMBIOS AQUÍ *****
 
 // Escuchar tanto el ratón...
 gameArea.addEventListener('mousemove', movePlayer);
