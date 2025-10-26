@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-R" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gatito Glotón</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Variables de color para un diseño cohesivo */
+        :root {
+            --bg-color: #87CEEB; /* Azul cielo */
+            --player-color: #FFA500;
+            --text-color: #FFFFFF;
+            --overlay-bg: rgba(0, 0, 0, 0.7);
+            --menu-bg: #fefefe;
+            --menu-text: #333;
+            --button-bg: #4CAF50; /* Verde */
+        }
+
+        /* Reset básico */
+        body {
+            font-family: 'Fredoka One', cursive;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #game-area {
+            width: 600px;
+            height: 800px;
+            background: linear-gradient(var(--bg-color), #B0E0E6);
+            border: 4px solid var(--text-color);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            cursor: none; /* Ocultamos el cursor, el gato lo reemplaza */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        #player {
+            position: absolute;
+            bottom: 80px; /* Sigue en 80px para que esté visible */
+            width: 90px;
+            height: 90px;
+            object-fit: contain; 
+            transition: none; 
+            z-index: 10; 
+        }
+
+        /* Estilo para todos los items que caen */
+        .item {
+            position: absolute;
+            top: -50px; /* Empezar fuera de la pantalla */
+            width: 40px;
+            height: 40px;
+            font-size: 35px;
+            text-align: center;
+            line-height: 40px;
+            z-index: 5;
+        }
+
+        #scoreDisplay {
+            position: absolute;
+            top: 100px; /* Sigue en 100px para que esté visible */
+            left: 50%;     
+            transform: translateX(-50%); 
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            z-index: 10; 
+        }
+
+        /* Estilo para los Menús (Inicio y Game Over) */
+        .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Lo quitamos de aquí, y lo pondremos en #gameOver */
+    /* background-color: var(--overlay-bg); */ 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+/* Y AÑADIMOS UN ESTILO ESPECÍFICO PARA EL GAME OVER SCREEN */
+#gameOver {
+    background-color: var(--overlay-bg); /* Solo Game Over tendrá el fondo oscuro */
+}
+        
+        /* ***** NUEVO: Fondo para el Menú de Inicio ***** */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Lo quitamos de aquí, y lo pondremos en #gameOver */
+    /* background-color: var(--overlay-bg); */ 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+/* Y AÑADIMOS UN ESTILO ESPECÍFICO PARA EL GAME OVER SCREEN */
+#gameOver {
+    background-color: var(--overlay-bg); /* Solo Game Over tendrá el fondo oscuro */
+}
+  #menu {
+    background-image: url('img/fondo.jpg'); 
+    background-size: cover; 
+    background-position: center center; 
+    background-repeat: no-repeat;
+    
+    /* ***** CAMBIOS AQUÍ ***** */
+    
+    display: flex; 
+    
+    /* 1. (Eje principal horizontal): Lo alinea a la DERECHA */
+    justify-content: flex-end; 
+    
+    /* 2. (Eje secundario vertical): Lo CENTRA verticalmente */
+    align-items: center; 
+    
+    /* 3. Le da 100px de espacio desde el borde derecho */
+    padding-right: 100px; 
+    
+    /* 4. Evita que el padding cause problemas de tamaño */
+    box-sizing: border-box; 
+}
+#menu .menu-box {
+    /* Fondo blanco semi-transparente (85% opaco) */
+    background-color: rgba(255, 255, 255, 0.85);
+    
+    /* (Opcional) Efecto de "vidrio esmerilado" para que se vea mejor */
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+    
+    /* Hacemos la sombra un poco más suave */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    
+    /* (Opcional) Un borde sutil */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+     .menu-box {
+    background-color: var(--menu-bg);
+    color: var(--menu-text);
+    padding: 30px 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    
+    /* ***** SOLUCIÓN 3 ***** */
+    /* Le da un espacio desde el borde inferior */
+    margin-bottom: 100px; 
+}
+        .menu-box p {
+            font-size: 1.2em;
+            margin-bottom: 25px;
+        }
+
+        .menu-box button {
+            font-family: 'Fredoka One', cursive;
+            font-size: 20px; /* Botón más grande */
+            padding: 15px 30px; /* Más padding */
+            border: none;
+            border-radius: 8px;
+            background-color: var(--button-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s; /* Añadir transform para un efecto de clic */
+        }
+
+        .menu-box button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px); /* Pequeño efecto al pasar el ratón */
+        }
+        .menu-box button:active {
+            transform: translateY(0); /* Efecto al hacer clic */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="menu" class="overlay">
+        <div class="menu-box">
+            <h1>Gatito Glotón</h1>
+            <p>¡Atrapa 🐟 y evita 🦴, 🍪 y 🧸!</p>
+            <button id="startButton">Empezar Juego</button>
+        </div>
+    </div>
+
+    <div id="gameOver" class="overlay" style="display: none;">
+        <div class="menu-box">
+            <h2>Game Over</h2>
+            <p>Puntuación Final: <span id="finalScore">0</span></p>
+            <button id="restartButton">Intentar de Nuevo</button>
+        </div>
+    </div>
+
+    <div id="game-area">
+        <div id="scoreDisplay">Puntuación: 0</div>
+        
+        <img id="player" src="img/splash_1.png" alt="Gato">
+        
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
