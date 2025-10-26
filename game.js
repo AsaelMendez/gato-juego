@@ -126,7 +126,7 @@ function endGame() {
 
 function checkCollision(el1, el2) {
     const rect1 = el1.getBoundingClientRect();
-    const rect2 = el2.getBoundingClientRect();
+    const rect2 = elR.getBoundingClientRect();
     return !(
         rect1.top > rect2.bottom ||
         rect1.right < rect2.left ||
@@ -135,7 +135,6 @@ function checkCollision(el1, el2) {
     );
 }
 
-// ***** CAMBIO 1: La función movePlayer ahora detecta TOUCH y MOUSE *****
 function movePlayer(event) {
     if (!gameRunning) return;
 
@@ -168,13 +167,15 @@ function movePlayer(event) {
 startButton.addEventListener('click', startGame);
 restartButton.addEventListener('click', startGame);
 
-// ***** CAMBIO 2: Añadimos un listener para 'touchmove' *****
+// ***** CAMBIOS AQUÍ *****
 
 // Escuchar tanto el ratón...
 gameArea.addEventListener('mousemove', movePlayer);
 
-// ...COMO el movimiento táctil del dedo
-// Añadimos { passive: false } para permitir que event.preventDefault() funcione
+// ...COMO el TOQUE INICIAL (teletransporte)...
+gameArea.addEventListener('touchstart', movePlayer, { passive: false });
+
+// ...Y el DESLIZAMIENTO (fluido)
 gameArea.addEventListener('touchmove', movePlayer, { passive: false });
 
 
