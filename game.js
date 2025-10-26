@@ -9,16 +9,16 @@ const restartButton = document.getElementById('restartButton');
 const finalScore = document.getElementById('finalScore');
 
 const catImages = [
-    'img/splash_1.png', // Nivel 0 (0-99 puntos)
-    'img/splash_2.png', // Nivel 1 (100-199 puntos)
-    'img/splash_3.png', // Nivel 2 (200-299 puntos)
-    'img/splash_4.png', // Nivel 3 (300-399 puntos)
-    'img/splash_5.png', // Nivel 4 (400-499 puntos)
-    'img/splash_6.png', // Nivel 5 (500-599 puntos)
-    'img/splash_7.png', // Nivel 6 (600-699 puntos)
-    'img/splash_8.png', // Nivel 7 (700-799 puntos)
-    'img/splash_9.png', // Nivel 8 (800-899 puntos)
-    'img/splash_10.png' // Nivel 9 (900+ puntos)
+    'img/splash_1.png', // Nivel 0 (0-59 puntos)
+    'img/splash_2.png', // Nivel 1 (60-119 puntos)
+    'img/splash_3.png', // Nivel 2 (120-179 puntos)
+    'img/splash_4.png', // etc...
+    'img/splash_5.png',
+    'img/splash_6.png',
+    'img/splash_7.png',
+    'img/splash_8.png',
+    'img/splash_9.png',
+    'img/splash_10.png' // Nivel 9 (540+ puntos)
 ];
 
 // --- 2. Variables de Estado del Juego ---
@@ -31,7 +31,8 @@ let playerWidth = player.offsetWidth;
 
 const items = {
     good: '🐟',
-    bad: ['🦴', '🍪', '🧸']
+    bad: ['🦴', '🍪', '🧸'],
+    special: '🐠' // ***** NUEVO: Pescado Dorado *****
 };
 
 // --- 3. Funciones del Juego ---
@@ -55,7 +56,9 @@ function startGame() {
     clearInterval(itemInterval);
     clearInterval(gameLoopInterval);
 
-    itemInterval = setInterval(createItem, 1000); 
+    // ***** CAMBIO 3: Más Acción *****
+    // Los objetos ahora caen cada 700ms (antes 1000ms)
+    itemInterval = setInterval(createItem, 700); 
     gameLoopInterval = setInterval(gameLoop, 16); 
 }
 
@@ -69,10 +72,16 @@ function gameLoop() {
         item.style.top = top + 'px';
 
         if (checkCollision(player, item)) {
-            if (item.classList.contains('good')) {
-                updateScore(1); 
+            
+            // ***** CAMBIO 2: Lógica del Pescado Dorado *****
+            if (item.classList.contains('special')) {
+                updateScore(10); // 10 puntos
+                item.remove();
+            } else if (item.classList.contains('good')) {
+                updateScore(1); // 1 punto
                 item.remove();
             } else {
+                // Es un objeto malo
                 endGame();
             }
         }
@@ -86,10 +95,16 @@ function createItem() {
     const itemElement = document.createElement('div');
     itemElement.classList.add('item');
 
-    if (Math.random() < 0.7) {
+    // ***** CAMBIO 2: Probabilidad del Pescado Dorado *****
+    let chance = Math.random();
+
+    if (chance < 0.1) { // 10% de probabilidad de Pescado Dorado
+        itemElement.textContent = items.special;
+        itemElement.classList.add('special');
+    } else if (chance < 0.7) { // 60% de probabilidad de Pescado normal (0.1 + 0.6 = 0.7)
         itemElement.textContent = items.good;
         itemElement.classList.add('good');
-    } else {
+    } else { // 30% de probabilidad de objeto malo
         itemElement.textContent = items.bad[Math.floor(Math.random() * items.bad.length)];
         itemElement.classList.add('bad');
     }
@@ -105,7 +120,9 @@ function updateScore(points) {
     score += points;
     scoreDisplay.textContent = `Puntuación: ${score}`;
 
-    let catLevel = Math.floor(score / 100);
+    // ***** CAMBIO 1: Progreso más Rápido *****
+    // Ahora se divide entre 60 (antes 100)
+    let catLevel = Math.floor(score / 60);
     
     if (catLevel >= catImages.length) {
         catLevel = catImages.length - 1; 
@@ -130,9 +147,6 @@ function endGame() {
 
 function checkCollision(el1, el2) {
     const rect1 = el1.getBoundingClientRect();
-    
-    // ***** ¡AQUÍ ESTABA EL ERROR CORREGIDO! *****
-    // Ahora dice "el2" (Elemento 2)
     const rect2 = el2.getBoundingClientRect(); 
     
     return !(
