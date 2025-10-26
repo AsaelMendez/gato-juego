@@ -51,6 +51,10 @@ function startGame() {
     menu.style.display = 'none';
     gameOverScreen.style.display = 'none';
 
+    // Limpiar intervalos antiguos por si acaso
+    clearInterval(itemInterval);
+    clearInterval(gameLoopInterval);
+
     itemInterval = setInterval(createItem, 1000); 
     gameLoopInterval = setInterval(gameLoop, 16); 
 }
@@ -127,8 +131,8 @@ function endGame() {
 function checkCollision(el1, el2) {
     const rect1 = el1.getBoundingClientRect();
     
-    // ***** ¡AQUÍ ESTABA EL ERROR! *****
-    // Decía "elR" en lugar de "el2"
+    // ***** ¡AQUÍ ESTABA EL ERROR CORREGIDO! *****
+    // Ahora dice "el2" (Elemento 2)
     const rect2 = el2.getBoundingClientRect(); 
     
     return !(
@@ -142,21 +146,16 @@ function checkCollision(el1, el2) {
 function movePlayer(event) {
     if (!gameRunning) return;
 
-    // ¡IMPORTANTE! Evita que la página haga scroll en el móvil
     event.preventDefault();
 
     let clientX;
     
-    // Comprobar si es un evento touch (móvil) o mouse (PC)
     if (event.touches) {
-        // Es touch: usar las coordenadas del primer dedo
         clientX = event.touches[0].clientX;
     } else {
-        // Es mouse: usar las coordenadas del ratón
         clientX = event.clientX;
     }
     
-    // El resto de la lógica es la misma
     let newX = clientX - gameAreaRect.left - (playerWidth / 2);
     
     if (newX < 0) newX = 0;
@@ -171,17 +170,11 @@ function movePlayer(event) {
 startButton.addEventListener('click', startGame);
 restartButton.addEventListener('click', startGame);
 
-// Escuchar tanto el ratón...
 gameArea.addEventListener('mousemove', movePlayer);
-
-// ...COMO el TOQUE INICIAL (teletransporte)...
 gameArea.addEventListener('touchstart', movePlayer, { passive: false });
-
-// ...Y el DESLIZAMIENTO (fluido)
 gameArea.addEventListener('touchmove', movePlayer, { passive: false });
 
 
-// Actualizar el tamaño del área de juego si la ventana cambia
 window.addEventListener('resize', () => {
     gameAreaRect = gameArea.getBoundingClientRect();
     playerWidth = player.offsetWidth; 
